@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title th:text="${#lists.contains(#httpServletRequest.requestURI,'editar') ? 'Editar jugador' : 'Nuevo jugador'}">Jugador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    :root{
+      --amarillo:#F5D10D; --verde:#1F8A1F; --verde-osc:#0f6a0f; --fondo:#F7FAF9;
+      --txt:#0f172a; --muted:#475569; --stroke:rgba(16,24,40,.08);
+      --ring:rgba(31,138,31,.30); --radius:18px; --shadow:0 10px 30px rgba(2,8,20,.06), 0 2px 8px rgba(2,8,20,.04);
+      --trans:200ms ease;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Noto Sans",sans-serif;
+      color:var(--txt); background:var(--fondo);
+    }
+    .wrap{max-width:760px; margin:48px auto; padding:0 20px}
+    .panel{background:#fff; border:1px solid var(--stroke); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden}
+    .head{display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border-bottom:1px solid var(--stroke)}
+    .title{margin:0; font-size:20px}
+    .crumb a{color:var(--muted); text-decoration:none}
+
+    .body{padding:18px 20px}
+    .grid{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+    @media (max-width:700px){ .grid{grid-template-columns:1fr} }
+    .field{display:flex; flex-direction:column; gap:6px}
+    label{font-size:12px; color:var(--muted)}
+    input, select{
+      padding:12px 14px; border-radius:12px; border:1px solid #e5e7eb; background:#fff; color:var(--txt);
+      transition:border-color var(--trans), box-shadow var(--trans), transform var(--trans);
+    }
+    input:focus, select:focus{
+      border-color:rgba(31,138,31,.45); box-shadow:0 0 0 4px var(--ring); outline:none; transform:translateY(-1px);
+    }
+    .errors{color:#9f1239; background:#fff1f3; border:1px solid #fecdd3; padding:8px 10px; border-radius:10px; font-size:12px}
+
+    .actions{display:flex; gap:10px; padding:16px 20px; border-top:1px solid var(--stroke); background:linear-gradient(180deg,#fff,#fafafa)}
+    .btn{
+      appearance:none; border:1px solid var(--stroke); background:linear-gradient(180deg,#fff,#f7f7f7);
+      color:var(--txt); padding:10px 14px; border-radius:12px; font-weight:800; cursor:pointer;
+      transition:transform var(--trans), box-shadow var(--trans), border-color var(--trans);
+      text-decoration:none;
+    }
+    .btn:hover{transform:translateY(-1px); border-color:rgba(31,138,31,.25); box-shadow:0 8px 20px rgba(2,8,20,.08)}
+    .btn-primary{background:linear-gradient(180deg, var(--verde), var(--verde-osc)); color:#fff; border-color:rgba(0,0,0,.08)}
+  </style>
+</head>
+<body>
+<div class="wrap" th:object="${jugador}">
+  <form class="panel" th:action="@{/jugador/guardar}" method="post" novalidate>
+    <div class="head">
+      <h1 class="title" th:text="${*{id} != null ? 'Editar jugador' : 'Nuevo jugador'}">Jugador</h1>
+      <div class="crumb"><a href="/plantel">← Volver al plantel</a></div>
+    </div>
+
+    <div class="body">
+      <input type="hidden" name="id" th:value="*{id}"/>
+
+      <div class="grid">
+        <div class="field">
+          <label for="nombre">Nombre</label>
+          <input id="nombre" name="nombre" type="text" placeholder="Nombre" th:value="*{nombre}">
+          <div class="errors" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}">Error</div>
+        </div>
+        <div class="field">
+          <label for="apellido">Apellido</label>
+          <input id="apellido" name="apellido" type="text" placeholder="Apellido" th:value="*{apellido}">
+          <div class="errors" th:if="${#fields.hasErrors('apellido')}" th:errors="*{apellido}">Error</div>
+        </div>
+        <div class="field">
+          <label for="numero">Número</label>
+          <input id="numero" name="numero" type="number" min="1" max="99" placeholder="10" th:value="*{numero}">
+          <div class="errors" th:if="${#fields.hasErrors('numero')}" th:errors="*{numero}">Error</div>
+        </div>
+        <div class="field">
+          <label for="posicion">Posición</label>
+          <select id="posicion" name="posicion" th:value="*{posicion}">
+            <option value="">Seleccione…</option>
+            <option>Portero</option>
+            <option>Defensa</option>
+            <option>Volante</option>
+            <option>Delantero</option>
+          </select>
+          <div class="errors" th:if="${#fields.hasErrors('posicion')}" th:errors="*{posicion}">Error</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Guardar</button>
+      <a class="btn" href="/plantel">Cancelar</a>
+    </div>
+  </form>
+</div>
+</body>
+</html>
