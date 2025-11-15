@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Plantel — Atlético Bucaramanga</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    :root{
+      --amarillo:#F5D10D; --verde:#1F8A1F; --verde-osc:#0f6a0f;
+      --fondo:#F7FAF9; --txt:#0f172a; --muted:#475569;
+      --stroke:rgba(16,24,40,.08); --radius:16px;
+      --shadow:0 10px 30px rgba(2,8,20,.06), 0 2px 8px rgba(2,8,20,.04);
+      --ring:rgba(31,138,31,.30); --trans:200ms ease;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Noto Sans",sans-serif;
+      background:var(--fondo); color:var(--txt);
+      background-image:radial-gradient(900px 520px at 85% -10%, rgba(245,209,13,.12), transparent 60%),
+                       radial-gradient(1000px 600px at -10% 30%, rgba(31,138,31,.08), transparent 60%);
+      background-attachment:fixed;
+    }
+    .wrap{max-width:1100px; margin:48px auto; padding:0 20px}
+    .head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px}
+    .title{margin:0; font-size:24px}
+    .crumb a{color:var(--muted); text-decoration:none}
+    .crumb a:hover{color:#111827}
+
+    .actions{display:flex; gap:10px; flex-wrap:wrap}
+    .btn{
+      appearance:none; border:1px solid var(--stroke);
+      background:linear-gradient(180deg, #ffffff, #f7f7f7);
+      color:var(--txt); padding:10px 14px; border-radius:12px; font-weight:800; cursor:pointer;
+      transition:transform var(--trans), box-shadow var(--trans), border-color var(--trans);
+    }
+    .btn:hover{transform:translateY(-1px); border-color:rgba(31,138,31,.25); box-shadow:0 8px 20px rgba(2,8,20,.08)}
+    .btn-primary{background:linear-gradient(180deg, var(--verde), var(--verde-osc)); color:#fff; border-color:rgba(0,0,0,.08)}
+
+    .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
+    @media (max-width:980px){ .grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:620px){ .grid{grid-template-columns:1fr}}
+
+    .card{
+      background:#fff; border:1px solid var(--stroke); border-radius:var(--radius); padding:16px;
+      box-shadow:var(--shadow);
+    }
+    .row{display:flex; align-items:center; gap:12px}
+    .num{
+      width:48px; height:48px; border-radius:12px; display:grid; place-items:center;
+      font-weight:900; color:#0f3810; background:linear-gradient(145deg, var(--amarillo), #ffef7a);
+      box-shadow:inset 0 0 0 2px rgba(15,56,16,.08), 0 6px 14px rgba(245,209,13,.25);
+      flex:0 0 auto;
+    }
+    .name{margin:0; font-size:18px}
+    .meta{color:var(--muted); font-size:14px}
+    .card-actions{display:flex; gap:8px; margin-top:12px}
+    .btn-danger{background:#fff1f3; border-color:#fecdd3; color:#9f1239}
+    .btn-danger:hover{border-color:#fb7185}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1 class="title">Plantel profesional</h1>
+      <div class="meta" th:text="${club != null ? club.nombre : ''}">Atlético Bucaramanga</div>
+    </div>
+    <div class="actions">
+      <a class="btn" href="/">← Volver</a>
+      <a class="btn btn-primary" href="/jugador/nuevo">+ Nuevo jugador</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card" th:each="j : ${jugadores}">
+      <div class="row">
+        <div class="num" th:text="${j.numero}">10</div>
+        <div>
+          <h3 class="name" th:text="${j.nombre + ' ' + j.apellido}">Nombre Apellido</h3>
+          <div class="meta" th:text="${j.posicion}">Volante</div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <a class="btn" th:href="@{'/jugador/editar/' + ${j.id}}">Editar</a>
+        <form th:action="@{'/jugador/eliminar/' + ${j.id}}" method="post" style="margin:0">
+          <button class="btn btn-danger" type="submit">Eliminar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

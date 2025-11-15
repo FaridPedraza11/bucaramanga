@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Editar club y entrenador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    :root{
+      --amarillo:#F5D10D; --verde:#1F8A1F; --verde-osc:#0f6a0f;
+      --fondo:#F7FAF9; --panel:rgba(255,255,255,.92); --stroke:rgba(16,24,40,.08);
+      --txt:#0f172a; --muted:#475569; --ring:rgba(31,138,31,.30);
+      --radius:18px; --shadow:0 10px 30px rgba(2,8,20,.06), 0 2px 8px rgba(2,8,20,.04); --trans:200ms ease;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Noto Sans",sans-serif;
+      color:var(--txt); background:var(--fondo);
+      background-image:
+        radial-gradient(900px 520px at 85% -10%, rgba(245,209,13,.12), transparent 60%),
+        radial-gradient(1000px 600px at -10% 30%, rgba(31,138,31,.08), transparent 60%);
+      background-attachment: fixed;
+    }
+
+    .wrap{max-width:1100px; margin:48px auto; padding:0 20px}
+    .panel{
+      position:relative; border-radius:var(--radius);
+      background:var(--panel); border:1px solid var(--stroke); box-shadow:var(--shadow);
+      overflow:hidden; backdrop-filter:saturate(140%) blur(8px); -webkit-backdrop-filter:saturate(140%) blur(8px);
+    }
+    .panel::before{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background:linear-gradient(180deg, rgba(245,209,13,.10), transparent 36%);
+    }
+    .head{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:22px 24px}
+    .title{margin:0; font-size:22px; letter-spacing:.2px}
+    .crumb a{color:var(--muted); text-decoration:none}
+    .crumb a:hover{color:#111827}
+
+    .form{padding:8px 24px 24px}
+    .section{margin-top:18px; border:1px solid var(--stroke); border-radius:16px; overflow:hidden; background:#fff}
+    .section > .section-head{
+      padding:14px 16px; background:linear-gradient(180deg, #ffffff, #fafafa);
+      display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--stroke)
+    }
+    .tag{
+      display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px;
+      background:#fff9d7; border:1px solid rgba(245,209,13,.45); color:#7a6b00; font-size:12px; font-weight:800;
+      text-transform:uppercase; letter-spacing:.4px;
+    }
+    .grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; padding:16px}
+    .field{display:flex; flex-direction:column; gap:8px}
+    label{font-size:12px; color:var(--muted); letter-spacing:.3px}
+    input{
+      padding:12px 14px; border-radius:12px; border:1px solid #e5e7eb;
+      background:#ffffff;
+      color:var(--txt); outline:none; transition:border-color var(--trans), box-shadow var(--trans), transform var(--trans);
+      box-shadow:0 1px 0 rgba(255,255,255,.8), inset 0 -1px 0 rgba(2,8,20,.02);
+    }
+    input::placeholder{color:#9aa5b1}
+    input:focus{
+      border-color:rgba(31,138,31,.45);
+      box-shadow:0 0 0 4px var(--ring);
+      transform:translateY(-1px);
+    }
+
+    .errors{display:flex; flex-direction:column; gap:6px}
+    .error{
+      background:#fff1f3; border:1px solid #fecdd3; color:#9f1239;
+      padding:8px 10px; border-radius:10px; font-size:12px
+    }
+
+    .actions{display:flex; gap:12px; flex-wrap:wrap; padding:16px; border-top:1px solid var(--stroke); background:linear-gradient(180deg,#fff,#fafafa)}
+    .btn{
+      appearance:none; border:1px solid var(--stroke);
+      background:linear-gradient(180deg, #ffffff, #f7f7f7);
+      color:var(--txt); padding:12px 16px; border-radius:12px; font-weight:800; cursor:pointer;
+      transition:transform var(--trans), box-shadow var(--trans), border-color var(--trans);
+      box-shadow:0 1px 0 rgba(255,255,255,.8), 0 1px 8px rgba(2,8,20,.04);
+      text-decoration:none;
+    }
+    .btn:hover{transform:translateY(-1px); border-color:rgba(31,138,31,.25); box-shadow:0 8px 20px rgba(2,8,20,.08)}
+    .btn:focus-visible{outline:4px solid var(--ring); outline-offset:2px}
+    .btn-primary{
+      background:linear-gradient(180deg, var(--verde), var(--verde-osc));
+      color:#fff; border-color:rgba(0,0,0,.08);
+      box-shadow:0 10px 24px rgba(31,138,31,.18), inset 0 1px 0 rgba(255,255,255,.15);
+    }
+    .btn-primary:hover{box-shadow:0 14px 32px rgba(31,138,31,.26)}
+    .btn-ghost{background:#fff}
+
+    .notice{
+      margin:14px 16px 4px; padding:12px 14px; border-left:4px solid var(--amarillo);
+      background:#fffced; color:#7a6b00; border-radius:10px;
+    }
+
+    @media (max-width:860px){ .grid{grid-template-columns:1fr} }
+    @media (prefers-reduced-motion:reduce){ .btn:hover,input:focus{transform:none} }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <form class="panel" th:action="@{/club/guardar}" method="post" novalidate>
+    <div class="head">
+      <h1 class="title">Editar club y entrenador</h1>
+      <div class="crumb">
+        <a href="/">← Regresar</a>
+      </div>
+    </div>
+
+    <div class="form">
+      <!-- ====== Sección Club ====== -->
+      <div class="section">
+        <div class="section-head">
+          <span class="tag">Club</span>
+          <strong th:text="${club.nombre != null ? club.nombre : 'Datos del club'}">Datos del club</strong>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="nombre">Nombre del club</label>
+            <input id="nombre" name="nombre" type="text" placeholder="Atlético Bucaramanga" th:value="${club.nombre}">
+          </div>
+          <div class="field">
+            <label for="ciudad">Ciudad</label>
+            <input id="ciudad" name="ciudad" type="text" placeholder="Bucaramanga" th:value="${club.ciudad}">
+          </div>
+          <div class="field">
+            <label for="estadio">Estadio</label>
+            <input id="estadio" name="estadio" type="text" placeholder="Estadio Alfonso López" th:value="${club.estadio}">
+          </div>
+          <div class="field">
+            <label for="fundacion">Año de fundación</label>
+            <input id="fundacion" name="fundacion" type="number" min="1800" max="2100" placeholder="1949" th:value="${club.fundacion}">
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== Sección Entrenador ====== -->
+      <div class="section" th:object="${entrenador}">
+        <div class="section-head">
+          <span class="tag">Entrenador</span>
+          <strong>Ficha del DT</strong>
+        </div>
+
+        <div class="grid">
+          <div class="field">
+            <label for="e_nombre">Nombre</label>
+            <input id="e_nombre" name="entrenador.nombre" type="text" placeholder="Nombre" th:value="*{nombre}">
+            <div class="errors" th:if="${#fields.hasErrors('nombre')}">
+              <div class="error" th:errors="*{nombre}">Error</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="e_apellido">Apellido</label>
+            <input id="e_apellido" name="entrenador.apellido" type="text" placeholder="Apellido" th:value="*{apellido}">
+            <div class="errors" th:if="${#fields.hasErrors('apellido')}">
+              <div class="error" th:errors="*{apellido}">Error</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="e_edad">Edad</label>
+            <input id="e_edad" name="entrenador.edad" type="number" min="18" max="90" placeholder="40" th:value="*{edad}">
+            <div class="errors" th:if="${#fields.hasErrors('edad')}">
+              <div class="error" th:errors="*{edad}">Error</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="e_nacionalidad">Nacionalidad</label>
+            <input id="e_nacionalidad" name="entrenador.nacionalidad" type="text" placeholder="Colombiana" th:value="*{nacionalidad}">
+            <div class="errors" th:if="${#fields.hasErrors('nacionalidad')}">
+              <div class="error" th:errors="*{nacionalidad}">Error</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="notice">
+          Consejo: completa la ficha del DT para que la portada muestre la tarjeta de entrenador con inicial y metadatos.
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Guardar cambios</button>
+      <a class="btn btn-ghost" href="/">Cancelar</a>
+    </div>
+  </form>
+</div>
+</body>
+</html>
